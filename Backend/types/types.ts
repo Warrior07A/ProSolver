@@ -29,3 +29,8 @@ export const ProbSchema  = z.object({
 export const TagsSchema = z.object({
     title : z.string()
 })
+
+export const ProTagSchema = z.object({
+    pro_id : z.string(),
+    tag_id : z.string()
+})

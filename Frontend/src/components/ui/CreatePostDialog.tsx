@@ -56,29 +56,36 @@ function CreatePostDialog({ open, onClose }: CreatePropsinPostDialog) {
     };
 
 
-    async function addques(){
-        // let obj = activeTags.entries;
-        // console.log(activeTags.keys);
-        const res = await axios.post("http://locahost:3001/create" , {
-            title : title,
-            description : description,
-            link : polygonLink,
-        } , {
-            headers : {
-                Authorization : localStorage.getItem("token")
+    async function addques() {
+        let Probres = await axios.post("http://locahost:3001/create", {
+            title: title,
+            description: description,
+            link: polygonLink,
+        }, {
+            headers: {
+                Authorization: localStorage.getItem("token")
             }
         })
-        if (res.status == 200){
-            let Pro_id = res.data.id
-            console.log(activeTags);
-            return;
-            // for(let i=0;i<)
-            // const tagsadd = await axios.post("http://localhost:3001/tagsadd" , {
-            //     Pro_id : Pro_id
-            //     title : 
-            // })
+        if (Probres.status == 200) {
+            let ProbId = Probres.data.id; 
+            let a: string[] = [];
+            let arr = activeTags.forEach((ele: string) => {
+                a.push(ele);
+            })
+            console.log(a);
+           
+            let tagres = await axios.post("http://locahost:3001/tagsadd", {
+                title: ele,
+                
+            }, {
+                headers: {
+                    Authorization: localStorage.getItem("token")
+                }
+
+        })
         }
-        else{
+
+        else {
             alert("error occured try again!")
         }
 
@@ -91,16 +98,21 @@ function CreatePostDialog({ open, onClose }: CreatePropsinPostDialog) {
         }
         if (!description.trim()) {
             setDescError(true);
+            setTimeout(() => setDescError(false), 1500);
+            return;
         }
 
-        if (!polygonLink.trim()){
+        if (!polygonLink.trim()) {
             setpolyError(true);
+            setTimeout(() => setpolyError(false), 1500);
+            return;
         }
+
         setSuccess(true);
         addques();
-        setTimeout(() => {
-            resetForm();
-        }, 1800);
+        // setTimeout(() => {
+        //     resetForm();
+        // }, 1800);
     };
 
     const resetForm = () => {
@@ -211,8 +223,8 @@ function CreatePostDialog({ open, onClose }: CreatePropsinPostDialog) {
                                             }`}
                                     />
                                     {polyError && (
-                                    <p className="text-xs text-red-500 mt-1">Polygon Link is required</p>
-                                )}
+                                        <p className="text-xs text-red-500 mt-1">Polygon Link is required</p>
+                                    )}
                                 </div>
                             </div>
 

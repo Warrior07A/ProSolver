@@ -2,7 +2,7 @@ import express, { type NextFunction, type Request, type Response } from "express
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import { prisma } from "./prisma/db";
 import cors from "cors";
-import { ProbSchema, SigninSchema, SignupSchema, TagsSchema } from "./types/types";
+import { ProbSchema, ProTagSchema, SigninSchema, SignupSchema, TagsSchema } from "./types/types";
 const SECRET = "akshat";
 
 const app = express();
@@ -22,7 +22,6 @@ function authm() {
     return ((req: Request, res: Response, next: NextFunction) => {
         try {
             const token = req.headers.authorization?.split(" ")[1] as string;
-            console.log(token);
             let tokenver = jwt.verify(token, SECRET) as JwtPayload;
             if (!tokenver) return ferr("UNAUTHORISED", 401, res);
             let id = tokenver.id;
@@ -32,7 +31,6 @@ function authm() {
             }
             next();
         } catch (e) {
-            console.log(e);
             return ferr("UNAUTHORISED", 401, res);
         }
     })
@@ -59,7 +57,7 @@ app.post("/signup", async (req: Request, res: Response) => {
         }
     })
     return res.status(201).json({
-        msg: "user create successfully",
+        msg: "user created successfully",
     })
 })
 
@@ -104,7 +102,7 @@ app.post("/create", authm(), async (req: Request, res: Response) => {
             }
         })
         return res.status(200).json({
-            msg: "probelm has been created successfully",
+            msg: "problem has been created successfully",
             id: probadd.id
         })
     }
@@ -123,11 +121,9 @@ app.post("/tagsadd", authm(), async (req: Request, res: Response) => {
         return ferr("ID IS MISSING", 401, res);
     }
     try {
-        const tagsadd = await prisma.tags.create({
-            data: {
-                Pro_id : tagver.data.Pro_id,
-                title :  tagver.data.title
-            }
+        const tagsadd = await prisma.tags.createMany({
+            data :dataToInsert , 
+            skipDuplicates : true
         })
         return res.status(200).json({
             msg: "tags has been created successfully",
@@ -138,6 +134,34 @@ app.post("/tagsadd", authm(), async (req: Request, res: Response) => {
         return ferr("tags ke CATCH mein fata", 400, res);
     }
 })
+
+
+app.post("/probtags", authm(), async (req: Request, res: Response) => {
+    const protagver = ProTagSchema.safeParse(req.body);
+    if (!protagver.success) {
+        return ferr("INPUT IS INVLAID", 400, res);
+    }
+    let id = req.id;
+    if (!id) {
+        return ferr("ID IS MISSING", 401, res);
+    }
+    try {
+        const tagsadd = await prisma.problemTags.create({
+            data: {
+                Tag_id : protagver.data.tag_id,
+                Pro_id : protagver.data.pro_id
+            }
+        })
+        return res.status(200).json({
+            msg: "Entry has been made successfully",
+            id: tagsadd.id
+        })
+    }
+    catch (e) {
+        return ferr("tags ke CATCH mein fata", 400, res);
+    }
+})
+
 
 
 app.get("/dashboard", authm(), async (req: Request, res: Response) => {
@@ -163,3 +187,32 @@ app.get("/dashboard", authm(), async (req: Request, res: Response) => {
 
 
 app.listen(3001);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import z from "zod";
+
+const MultEntrySchema = z.object({
+    title : z.string(),
+    
+})
+
+
+
+
+app.post("/mulentry" , async(req : Request , res : Response)=>{
+    const mulentryver = 
+})

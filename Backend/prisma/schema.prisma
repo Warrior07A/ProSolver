@@ -29,11 +29,24 @@ model Problems {
 
   tags  Tags[]
   owner Users  @relation(fields: [userid], references: [id])
+  JCtable ProblemTags[]
+
 }
 
 model Tags {
   id    String @id @default(uuid())
   title String
-  
+
   Problem Problems[]
+  JCtable ProblemTags[]
+}
+
+model ProblemTags{
+  id    String @id @default(uuid())
+  Tag_id String
+  Pro_id  String
+
+  Problem Problems @relation(fields: [Pro_id] ,references: [id])
+  Tags Tags  @relation(fields: [Tag_id] ,references: [id])
+
 }
