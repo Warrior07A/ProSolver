@@ -1,5 +1,4 @@
 import CreatePostDialog from "@/components/ui/CreatePostDialog";
-import Navbar from "@/components/ui/Navbar";
 import { ProblemCard } from "@/components/ui/ProblemCard";
 import { Search, Plus } from "lucide-react";
 import { useState } from "react";
@@ -12,7 +11,7 @@ export default function Dashboard() {
             title: "Two Sum Variation",
             description: "Find two numbers whose sum equals target.",
             polygonLink: "https://polygon.codeforces.com/",
-            tags: ["Array"],
+            tags: ["Array" , "DP" , "Strings"],
         },
         {
             title: "Binary Search Optimization",

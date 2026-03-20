@@ -57,35 +57,53 @@ function CreatePostDialog({ open, onClose }: CreatePropsinPostDialog) {
 
 
     async function addques() {
-        let Probres = await axios.post("http://locahost:3001/create", {
-            title: title,
-            description: description,
-            link: polygonLink,
-        }, {
-            headers: {
-                Authorization: localStorage.getItem("token")
-            }
-        })
-        if (Probres.status == 200) {
-            let ProbId = Probres.data.id; 
-            let a: string[] = [];
-            let arr = activeTags.forEach((ele: string) => {
-                a.push(ele);
-            })
-            console.log(a);
-           
-            let tagres = await axios.post("http://locahost:3001/tagsadd", {
-                title: ele,
-                
+        try{
+            let Probres = await axios.post("http://locahost:3001/create", {
+                title: title,
+                description: description,
+                link: polygonLink,
             }, {
                 headers: {
                     Authorization: localStorage.getItem("token")
                 }
-
-        })
+            })
+            if (Probres.status == 200) {
+                let ProbId = Probres.data.id; 
+                let a: {}[] = [];
+                let arr = activeTags.forEach((ele: string) => {
+                    a.push({"title" : ele});
+                })
+                console.log(a);
+               
+                let tagres = await axios.post("http://locahost:3001/tagsadd", {
+                    data : a
+                }, {
+                    headers: {
+                        Authorization: localStorage.getItem("token")
+                    }
+                })
+                interface tagsinter{
+                    id : string,
+                    title : string
+                }
+                a = a.filter((tags : any)=>{
+                    if(tags.id) return true;
+                })
+                let b = []{}
+                b = a.map((row : any) =>{
+                    row[
+                        
+                    ]
+                    row["pro_id"]  = ProbId
+                })
+                if (tagres.status == 200){
+                    let juncadd = await axios.post("http://localhost:3001/probtags" , {
+                        data : 
+                    })     
+                }
+            }
         }
-
-        else {
+        catch {
             alert("error occured try again!")
         }
 

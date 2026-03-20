@@ -112,6 +112,7 @@ app.post("/create", authm(), async (req: Request, res: Response) => {
 })
 
 app.post("/tagsadd", authm(), async (req: Request, res: Response) => {
+
     const tagver = TagsSchema.safeParse(req.body);
     if (!tagver.success) {
         return ferr("INPUT IS INVLAID", 400, res);
@@ -121,16 +122,17 @@ app.post("/tagsadd", authm(), async (req: Request, res: Response) => {
         return ferr("ID IS MISSING", 401, res);
     }
     try {
-        const tagsadd = await prisma.tags.createMany({
-            data :dataToInsert , 
+        const tagsadd = await prisma.tags.createManyAndReturn({
+            data : req.body.data , 
             skipDuplicates : true
         })
         return res.status(200).json({
-            msg: "tags has been created successfully",
-            id: tagsadd.id
+            msg : "tags has been created successfully",
+            tagsadd : tagsadd
         })
     }
     catch (e) {
+        console.log(e);
         return ferr("tags ke CATCH mein fata", 400, res);
     }
 })
@@ -146,11 +148,12 @@ app.post("/probtags", authm(), async (req: Request, res: Response) => {
         return ferr("ID IS MISSING", 401, res);
     }
     try {
-        const tagsadd = await prisma.problemTags.create({
-            data: {
-                Tag_id : protagver.data.tag_id,
-                Pro_id : protagver.data.pro_id
-            }
+        const tagsadd = await prisma.problemTags.createManyAndReturn({
+            data : req.body.data
+            // data: {
+            //     Tag_id : protagver.data.tag_id,
+            //     Pro_id : protagver.data.pro_id
+            // }
         })
         return res.status(200).json({
             msg: "Entry has been made successfully",
@@ -203,16 +206,16 @@ app.listen(3001);
 
 
 
-import z from "zod";
+// import z from "zod";
 
-const MultEntrySchema = z.object({
-    title : z.string(),
+// const MultEntrySchema = z.object({
+//     title : z.string(),
     
-})
+// })
 
 
 
 
-app.post("/mulentry" , async(req : Request , res : Response)=>{
-    const mulentryver = 
-})
+// app.post("/mulentry" , async(req : Request , res : Response)=>{
+//     const mulentryver = 
+// })
