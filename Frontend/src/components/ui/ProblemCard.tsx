@@ -1,22 +1,29 @@
 import { useState } from "react";
 import MarkdownRenderer from "./MarkdownRenderer/MarkdownRenderer";
+import EditDialog from "./EditDialog";
 
-interface Card{
-    title : string,
-    description : string,
-    polygonLink : string
-    tags : string[]
+export interface Card {
+    _id?: string;
+    title: string;
+    description: string;
+    polygon_link?: string;
+    polygonLink?: string;
+    tags: string[];
+    onRefresh?: () => void;
 }
 
 export function ProblemCard( props : Card) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const CHAR_LIMIT = 250;
   
   // Predict if the markdown text is long enough to warrant truncation
   const isLong = props.description && props.description.length > CHAR_LIMIT;
+  
+  const link = props.polygon_link || props.polygonLink || "";
 
   return (
-    <div className="border rounded-2xl p-6 flex justify-between items-start hover:shadow-md transition bg-white overflow-hidden">
+    <div className="border rounded-2xl p-6 flex justify-between items-start hover:shadow-md transition bg-white overflow-hidden text-left">
       <div className="space-y-3 flex-1 pr-6 min-w-0">
         <h2 className="text-lg font-semibold">{props.title}</h2>
         
@@ -28,14 +35,14 @@ export function ProblemCard( props : Card) {
             
             {/* Visual fade-out effect when collapsed */}
             {!isExpanded && isLong && (
-              <div className="absolute -bottom-1 left-0 right-0 h-10 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+              <div className="absolute -bottom-1 left-0 right-0 h-10 bg-linear-to-t from-white to-transparent pointer-events-none" />
             )}
           </div>
           
           {isLong && (
             <button 
               onClick={() => setIsExpanded(!isExpanded)}
-              className="mt-1 text-[13px] font-medium text-blue-600 hover:text-blue-800 transition-colors"
+              className="mt-1 text-[13px] font-medium text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
             >
               {isExpanded ? "Show less" : "Read more"}
             </button>
@@ -44,7 +51,7 @@ export function ProblemCard( props : Card) {
 
         <div>
           <a
-            href={props.polygonLink}
+            href={link}
             target="_blank"
             className="text-blue-600 text-sm underline"
           >
@@ -61,9 +68,27 @@ export function ProblemCard( props : Card) {
         </div>
       </div>
 
-      <button className="border rounded-md px-3 py-1 text-sm hover:bg-gray-100 font-medium shrink-0">
+      <button 
+        onClick={() => setEditOpen(true)}
+        className="border rounded-md px-3 py-1 text-sm hover:bg-gray-100 font-medium shrink-0 cursor-pointer"
+      >
         Edit
       </button>
+
+      {editOpen && (
+        <EditDialog 
+          open={editOpen} 
+          onClose={() => setEditOpen(false)} 
+          onSuccess={() => { props.onRefresh && props.onRefresh(); }}
+          problem={{
+            _id: props._id || "",
+            title: props.title,
+            description: props.description,
+            polygon_link: link,
+            tags: props.tags
+          }}
+        />
+      )}
     </div>
   );
 }

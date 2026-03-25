@@ -1,7 +1,7 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import cors from "cors";
-import { ProbSchema, ProTagSchema, SigninSchema, SignupSchema, TagsSchema } from "./types/types";
+import { ProbSchema, ProTagSchema, SigninSchema, SignupSchema, TagsSchema, ProbeditSchema } from "./types/types";
 import mongoose, { Types, type ObjectId } from "mongoose";
 import * as dotenv from "dotenv";
 import { User } from "./db";
@@ -120,39 +120,27 @@ app.post("/create", authm(), async (req: Request, res: Response) => {
     if (!id) {
         return ferr("ID IS MISSING", 401, res);
     }
-    console.log("hi1");
     try {
+        let Probfound = await Problems.find({
+            title : probver.data.title
+        })
 
-        let filter = { user_id: id };
-        let update = {
-            $push: {
-                Problems: {
-                    title: probver.data.title,
-                    description: probver.data.description,
-                    polygon_link: probver.data.link,
-                    tags: probver.data.tags
-                }
-            }
+        console.log(Probfound)
+        if (Probfound.length > 0){
+            return ferr("Problem Already Exists" , 401, res);
         }
-        let options = { new: true };
-        let probadd = await Problems.findOneAndUpdate(filter, update, options);
-
-        if (!probadd) {
-            probadd = await Problems.create({
-                user_id: id,
-                Problems: [{
-                    title: probver.data.title,
-                    description: probver.data.description,
-                    polygon_link: probver.data.link,
-                    tags: probver.data.tags
-                }]
-            })
-        }
+        let probadd = await Problems.create({
+            user_id: id,
+            title: probver.data.title,
+            description: probver.data.description,
+            polygon_link: probver.data.link,
+            tags: probver.data.tags
+        });
 
         return res.status(200).json({
             msg: "problem has been created successfully",
             id: probadd._id
-        })
+        });
     }
     catch (e: any) {
         return ferr(e, 400, res);
@@ -165,24 +153,52 @@ app.get("/dashboard", authm(), async (req: Request, res: Response) => {
         return ferr("ID IS MISSING", 401, res);
     }
 
-    const problems = await Problems.findOne({
+    const problems = await Problems.find({
         user_id : id
-    }).select('Problems');
+    });
     
-    console.log(problems);
-    // prisma.problems.findMany({
-    //     where: {
-    //         userid: id
-    //     }
-    // })
-    // if (problems.length == 0) {
-    //     return res.status(200).json({
-    //         msg: "no posts exist",
-    //     })
-    // }
-    return res.status(201).json({
+    return res.status(200).json({
         problems: problems
-    })
+    });
+})
+
+app.put("/edit", authm(), async (req: Request, res: Response) => {
+    const editver = ProbeditSchema.safeParse(req.body);
+    if (!editver.success) {
+        return ferr("INPUT IS INVALID", 400, res);
+    }
+
+    let id = req.id as Types.ObjectId;
+    if (!id) {
+        return ferr("ID IS MISSING", 401, res);
+    }
+
+    try {
+        const { problem_id, title, description, link, tags } = editver.data;
+
+        const updateData: any = {};
+        if (title !== undefined) updateData.title = title;
+        if (description !== undefined) updateData.description = description;
+        if (link !== undefined) updateData.polygon_link = link;
+        if (tags !== undefined) updateData.tags = tags;
+
+        const updatedProblem = await Problems.findOneAndUpdate(
+            { _id: problem_id, user_id: id },
+            { $set: updateData },
+            { new: true }
+        );
+
+        if (!updatedProblem) {
+            return ferr("PROBLEM NOT FOUND OR UNAUTHORIZED", 404, res);
+        }
+
+        return res.status(200).json({
+            msg: "Problem updated successfully",
+            problem: updatedProblem
+        });
+    } catch (e: any) {
+        return ferr(e.message || "An error occurred", 400, res);
+    }
 })
 
 

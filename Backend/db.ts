@@ -7,13 +7,11 @@ const userSchema = new mongoose.Schema({
 })
 
 const ProbSchema = new mongoose.Schema({
-    user_id: mongoose.Schema.ObjectId,
-    Problems: [Object({
-        title: String,
-        description: String,
-        polygon_link: String,
-        tags: [String]
-    })]
+    user_id: mongoose.Types.ObjectId,
+    title: String,
+    description: String,
+    polygon_link: String,
+    tags: [String]
 })
 
 

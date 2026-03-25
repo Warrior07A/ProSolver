@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MarkdownIt from "markdown-it";
 import mk from "markdown-it-katex";
 
@@ -28,6 +28,14 @@ function CreatePostDialog({ open, onClose }: CreatePropsinPostDialog) {
     const [polyError, setpolyError] = useState(false);
 
     const [success, setSuccess] = useState(false);
+
+    useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === "Escape") handleClose();
+        };
+        if (open) window.addEventListener("keydown", handleEsc);
+        return () => window.removeEventListener("keydown", handleEsc);
+    }, [open]);
 
     const allPresets = [...PRESET_TAGS, ...customTags];
 

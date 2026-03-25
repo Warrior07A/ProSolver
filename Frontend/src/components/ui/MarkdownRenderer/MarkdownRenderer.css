@@ -27,3 +27,33 @@
   border: 1px solid #e5e7eb;
   padding: 8px 12px;
 }
+
+.io-header {
+  font-family: Consolas, Monaco, "Courier New", Courier, monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e40af;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #bfdbfe;
+  padding-bottom: 0.25rem;
+}
+
+.markdown-renderer p {
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.markdown-renderer ol {
+  padding-left: 3.5rem;
+  margin-bottom: 1.25rem;
+  list-style-type: decimal;
+}
+
+.markdown-renderer ul {
+  padding-left: 3.5rem;
+  margin-bottom: 1.25rem;
+  list-style-type: disc;
+}

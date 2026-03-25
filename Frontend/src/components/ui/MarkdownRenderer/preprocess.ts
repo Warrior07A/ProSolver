@@ -62,14 +62,23 @@ export function preprocessPolygonMathAware(text: string = ""): string {
 function preprocessPolygon(text: string): string {
   let s = text;
 
-  s = s.replace(/\\InputFile/g, "### Input");
-  s = s.replace(/\\OutputFile/g, "### Output");
-  s = s.replace(/\\Note/g, "### Note");
+  s = s.replace(/\\InputFile/g, '\n<h3 class="io-header">Input</h3>\n');
+  s = s.replace(/\\OutputFile/g, '\n<h3 class="io-header">Output</h3>\n');
+  s = s.replace(/\\Note/g, '\n<h3 class="io-header">Note</h3>\n');
+  // Catch various markdown headings for these sections:
+  // Matches "### Input", "**Input:**", "Input Format", "## Output:", "**Note**", "Input Data", etc.
+  s = s.replace(/^[ \t]*(?:#{1,6}\s+|\*\*)?\s*(Input|Output|Note)(?:\s+(?:Format|Data))?\s*:?\s*(?:\*\*)?\s*$/gmi, 
+    (match, word) => {
+      const title = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      return `\n<h3 class="io-header">${title}</h3>\n`;
+    }
+  );
 
   s = s.replace(/\\textbf\{([^}]*)\}/g, "**$1**");
   s = s.replace(/\\textit\{([^}]*)\}/g, "*$1*");
 
-  s = s.replace(/\\item\s*/g, "- ");
+  s = s.replace(/\\item\s*/g, "1. ");
+  s = s.replace(/^[ \t]*-\s+/gm, "1. ");
 
   return s;
 }

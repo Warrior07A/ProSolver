@@ -38,3 +38,11 @@ export const ProTagSchema = z.object({
             tag_id: z.string()
         }))
 })
+
+export const ProbeditSchema = z.object({
+    problem_id: z.string(),
+    title: z.string().optional(),
+    description: z.string().optional(),
+    link: z.string().optional(),
+    tags: z.array(z.string()).optional()
+})
