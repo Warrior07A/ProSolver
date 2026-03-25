@@ -1,6 +1,8 @@
 import axios from "axios";
-import { Rss } from "lucide-react";
 import { useState } from "react";
+import MarkdownIt from "markdown-it";
+import mk from "markdown-it-katex";
+
 
 const PRESET_TAGS = [
     "String", "Array", "Dynamic Programming",
@@ -58,56 +60,33 @@ function CreatePostDialog({ open, onClose }: CreatePropsinPostDialog) {
 
     async function addques() {
         try{
-            let Probres = await axios.post("http://locahost:3001/create", {
+            let a: string[] = [];
+            activeTags.forEach((ele: any) => {
+                a.push(ele);
+            })  
+            console.log(a);
+            let Probres = await axios.post("http://localhost:3001/create", {
                 title: title,
                 description: description,
                 link: polygonLink,
+                tags: a
             }, {
                 headers: {
                     Authorization: localStorage.getItem("token")
                 }
             })
-            if (Probres.status == 200) {
-                let ProbId = Probres.data.id; 
-                let a: {}[] = [];
-                let arr = activeTags.forEach((ele: string) => {
-                    a.push({"title" : ele});
-                })
-                console.log(a);
-               
-                let tagres = await axios.post("http://locahost:3001/tagsadd", {
-                    data : a
-                }, {
-                    headers: {
-                        Authorization: localStorage.getItem("token")
-                    }
-                })
-                interface tagsinter{
-                    id : string,
-                    title : string
-                }
-                a = a.filter((tags : any)=>{
-                    if(tags.id) return true;
-                })
-                let b = []{}
-                b = a.map((row : any) =>{
-                    row[
-                        
-                    ]
-                    row["pro_id"]  = ProbId
-                })
-                if (tagres.status == 200){
-                    let juncadd = await axios.post("http://localhost:3001/probtags" , {
-                        data : 
-                    })     
-                }
+            if (Probres.status == 200) {               
+                alert("your problem has been added");
+                handleClose();
             }
         }
-        catch {
-            alert("error occured try again!")
+        catch (e){
+            console.log(e);
+            alert(e);
         }
-
     }
+
+    
     const handleSubmit = () => {
         if (!title.trim()) {
             setTitleError(true);
@@ -334,7 +313,7 @@ function CreatePostDialog({ open, onClose }: CreatePropsinPostDialog) {
                             </button>
                             <button
                                 onClick={handleSubmit}
-                                disabled={success}
+                                // disabled={success}
                                 className="px-5 py-2 text-[13px] font-semibold rounded-lg bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                             >
                                 Publish Post

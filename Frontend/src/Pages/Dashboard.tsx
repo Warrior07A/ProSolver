@@ -1,43 +1,38 @@
 import CreatePostDialog from "@/components/ui/CreatePostDialog";
 import { ProblemCard } from "@/components/ui/ProblemCard";
+import axios from "axios";
 import { Search, Plus } from "lucide-react";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 
 export default function Dashboard() {
 
-    const [problems, setProblems] = useState([
-        {
-            title: "Two Sum Variation",
-            description: "Find two numbers whose sum equals target.",
-            polygonLink: "https://polygon.codeforces.com/",
-            tags: ["Array" , "DP" , "Strings"],
-        },
-        {
-            title: "Binary Search Optimization",
-            description: "Binary search on answer technique.",
-            polygonLink: "https://polygon.codeforces.com/",
-            tags: ["Array"],
-        },
-        {
-            title: "Graph Shortest Path",
-            description: "Use Dijkstra algorithm.",
-            polygonLink: "https://polygon.codeforces.com/",
-            tags: ["Dynamic Programming"],
-        },
-    ]);
+    const [problems, setProblems] = useState([]);
 
     const [open, setOpen] = useState(false);
+    
+    useEffect(()=>{
+        getproblems();
+    } , [open])
+
+    async function  getproblems(){
+        let Pres = await axios.get("http://localhost:3001/dashboard" ,  {
+            headers :{
+                Authorization : localStorage.getItem("token") 
+            } 
+        })  
+        setProblems((Pres.data.problems.Problems).reverse());
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
             <div id="navbar">
                 <div className="w-full border-b bg-white px-8 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-5">
                         <div className="w-10 h-10 rounded-full border flex items-center justify-center text-xs">
-                            icon
                         </div>
-                        <h1 className="text-xl font-semibold">100xSchool</h1>
+                        {/* <h1 className="text-sm"> */}
+                            <a className="group text-black text-lg tracking" href="/dashboard" data-discover="true">100<span className="text-primary "><label className="text-blue-800">x</label></span>School</a>
+                            {/* </h1> */}
                     </div>
 
                     <div className="flex items-center gap-6">
@@ -61,7 +56,7 @@ export default function Dashboard() {
 
             </div>
             {
-                open ?  <CreatePostDialog open = {open} onClose = {()=>setOpen(false)} /> : null
+                open ?  <CreatePostDialog  open = {open} onClose = {()=>setOpen(false)} /> : null
 
             }
             <div className="max-w-4xl mx-auto mt-10 space-y-6 px-6">

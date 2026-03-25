@@ -23,7 +23,8 @@ export const PostSchema = z.object({
 export const ProbSchema = z.object({
     title: z.string(),
     description: z.string(),
-    link: z.string()
+    link: z.string(),
+    tags : z.array(z.string())
 })
 
 export const TagsSchema = z.object({

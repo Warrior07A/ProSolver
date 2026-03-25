@@ -1,8 +1,14 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
-import { prisma } from "./prisma/db";
 import cors from "cors";
 import { ProbSchema, ProTagSchema, SigninSchema, SignupSchema, TagsSchema } from "./types/types";
+import mongoose, { Types, type ObjectId } from "mongoose";
+import * as dotenv from "dotenv";
+import { User } from "./db";
+import { Problems } from "./db";
+
+
+dotenv.config();
 const SECRET = "akshat";
 
 const app = express();
@@ -10,6 +16,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+mongoose.connect(process.env.MONGO_URL!);
 
 function ferr(msg: string, code: number, res: Response) {
     return res.status(code).json({
@@ -21,12 +28,16 @@ function ferr(msg: string, code: number, res: Response) {
 function authm() {
     return ((req: Request, res: Response, next: NextFunction) => {
         try {
-            const token = req.headers.authorization?.split(" ")[1] as string;
+            let token = req.headers.authorization as string;
+            if (token && token.startsWith("Bearer ")) {
+                token = token.split(" ")[1] as string;
+            }
             let tokenver = jwt.verify(token, SECRET) as JwtPayload;
             if (!tokenver) return ferr("UNAUTHORISED", 401, res);
             let id = tokenver.id;
             req.id = id;
             if (!id) {
+                console.log("here1");
                 return ferr("NOT_FOUND", 404, res);
             }
             next();
@@ -41,21 +52,31 @@ app.post("/signup", async (req: Request, res: Response) => {
     if (!signupvalid.success) {
         return ferr("INVALID_INPUT", 400, res);
     }
-    const userexist = await prisma.users.findUnique({
-        where: {
-            email: signupvalid.data.email
-        }
+    const userexist = await User.exists({
+        email: signupvalid.data.email
     })
+    // await prisma.users.findUnique({
+    //     where: {
+    //         email: signupvalid.data.email
+    //     }
+    // })
     if (userexist) {
         return ferr("EMAIL_ALREADY_EXISTS", 409, res);
     }
-    const useradd = await prisma.users.create({
-        data: {
-            name: signupvalid.data.name,
-            email: signupvalid.data.email,
-            password: signupvalid.data.password
-        }
+
+    const useradd = await User.create({
+        name: signupvalid.data.name,
+        email: signupvalid.data.email,
+        password: signupvalid.data.password
     })
+
+    // await prisma.users.create({
+    //     data: {
+    //         name: signupvalid.data.name,
+    //         email: signupvalid.data.email,
+    //         password: signupvalid.data.password
+    //     }
+    // })
     return res.status(201).json({
         msg: "user created successfully",
     })
@@ -66,15 +87,22 @@ app.post("/login", async (req: Request, res: Response) => {
     if (!loginverify.success) {
         return ferr("INVALID_INPUT", 400, res);
     }
-    const userexist = await prisma.users.findUnique({
-        where: {
-            email: loginverify.data.email
-        }
+    const userexist = await User.exists({
+        email: loginverify.data.email,
+        password: loginverify.data.password
     })
+
+    // await prisma.users.findUnique({
+    //     where: {
+    //         email: loginverify.data.email
+    //     }
+    // })
+
     if (!userexist) {
         return ferr("USER_DOESNOT_EXIST", 404, res);
     }
-    let id = userexist.id;
+    console.log(userexist);
+    let id = userexist._id as Types.ObjectId;
     const token = jwt.sign({ id }, SECRET);
     return res.status(201).json({
         msg: "user create successfully",
@@ -88,84 +116,48 @@ app.post("/create", authm(), async (req: Request, res: Response) => {
     if (!probver.success) {
         return ferr("INPUT IS INVLAID", 400, res);
     }
-    let id = req.id;
+    let id = req.id as Types.ObjectId;
     if (!id) {
         return ferr("ID IS MISSING", 401, res);
     }
+    console.log("hi1");
     try {
-        const probadd = await prisma.problems.create({
-            data: {
-                title: probver.data.title,
-                description: probver.data.description,
-                polygon_link: probver.data.link,
-                userid: id
+
+        let filter = { user_id: id };
+        let update = {
+            $push: {
+                Problems: {
+                    title: probver.data.title,
+                    description: probver.data.description,
+                    polygon_link: probver.data.link,
+                    tags: probver.data.tags
+                }
             }
-        })
+        }
+        let options = { new: true };
+        let probadd = await Problems.findOneAndUpdate(filter, update, options);
+
+        if (!probadd) {
+            probadd = await Problems.create({
+                user_id: id,
+                Problems: [{
+                    title: probver.data.title,
+                    description: probver.data.description,
+                    polygon_link: probver.data.link,
+                    tags: probver.data.tags
+                }]
+            })
+        }
+
         return res.status(200).json({
             msg: "problem has been created successfully",
-            id: probadd.id
+            id: probadd._id
         })
     }
-    catch (e) {
-        return ferr("CATCH mein fata", 400, res);
+    catch (e: any) {
+        return ferr(e, 400, res);
     }
 })
-
-app.post("/tagsadd", authm(), async (req: Request, res: Response) => {
-
-    const tagver = TagsSchema.safeParse(req.body);
-    if (!tagver.success) {
-        return ferr("INPUT IS INVLAID", 400, res);
-    }
-    let id = req.id;
-    if (!id) {
-        return ferr("ID IS MISSING", 401, res);
-    }
-    try {
-        const tagsadd = await prisma.tags.createManyAndReturn({
-            data : req.body.data , 
-            skipDuplicates : true
-        })
-        return res.status(200).json({
-            msg : "tags has been created successfully",
-            tagsadd : tagsadd
-        })
-    }
-    catch (e) {
-        console.log(e);
-        return ferr("tags ke CATCH mein fata", 400, res);
-    }
-})
-
-
-app.post("/probtags", authm(), async (req: Request, res: Response) => {
-    const protagver = ProTagSchema.safeParse(req.body);
-    if (!protagver.success) {
-        return ferr("INPUT IS INVLAID", 400, res);
-    }
-    let id = req.id;
-    if (!id) {
-        return ferr("ID IS MISSING", 401, res);
-    }
-    try {
-        const tagsadd = await prisma.problemTags.createManyAndReturn({
-            data : req.body.data
-            // data: {
-            //     Tag_id : protagver.data.tag_id,
-            //     Pro_id : protagver.data.pro_id
-            // }
-        })
-        return res.status(200).json({
-            msg: "Entry has been made successfully",
-            id: tagsadd.id
-        })
-    }
-    catch (e) {
-        return ferr("tags ke CATCH mein fata", 400, res);
-    }
-})
-
-
 
 app.get("/dashboard", authm(), async (req: Request, res: Response) => {
     let id = req.id;
@@ -173,16 +165,21 @@ app.get("/dashboard", authm(), async (req: Request, res: Response) => {
         return ferr("ID IS MISSING", 401, res);
     }
 
-    const problems = await prisma.problems.findMany({
-        where: {
-            userid: id
-        }
-    })
-    if (problems.length == 0) {
-        return res.status(200).json({
-            msg: "no posts exist",
-        })
-    }
+    const problems = await Problems.findOne({
+        user_id : id
+    }).select('Problems');
+    
+    console.log(problems);
+    // prisma.problems.findMany({
+    //     where: {
+    //         userid: id
+    //     }
+    // })
+    // if (problems.length == 0) {
+    //     return res.status(200).json({
+    //         msg: "no posts exist",
+    //     })
+    // }
     return res.status(201).json({
         problems: problems
     })
@@ -190,32 +187,3 @@ app.get("/dashboard", authm(), async (req: Request, res: Response) => {
 
 
 app.listen(3001);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import z from "zod";
-
-// const MultEntrySchema = z.object({
-//     title : z.string(),
-    
-// })
-
-
-
-
-// app.post("/mulentry" , async(req : Request , res : Response)=>{
-//     const mulentryver = 
-// })
