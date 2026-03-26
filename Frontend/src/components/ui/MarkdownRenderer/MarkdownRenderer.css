@@ -1,7 +1,7 @@
 .markdown-renderer {
-  font-family: system-ui,-apple-system,"Segoe UI",Roboto;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto;
   line-height: 1.6;
-  color: #111827;
+  /* color inherits from parent (text-gray-600 or dark:text-gray-300) */
 }
 
 .markdown-renderer pre {
@@ -13,9 +13,13 @@
 }
 
 .markdown-renderer code {
-  background: rgba(27,31,35,0.05);
+  background: rgba(27, 31, 35, 0.05);
   padding: 2px 6px;
   border-radius: 4px;
+}
+
+:root.dark .markdown-renderer code {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .markdown-renderer table {
@@ -26,6 +30,11 @@
 .markdown-renderer table td {
   border: 1px solid #e5e7eb;
   padding: 8px 12px;
+}
+
+:root.dark .markdown-renderer table th,
+:root.dark .markdown-renderer table td {
+  border: 1px solid #374151;
 }
 
 .io-header {
@@ -39,6 +48,11 @@
   letter-spacing: 0.05em;
   border-bottom: 2px solid #bfdbfe;
   padding-bottom: 0.25rem;
+}
+
+:root.dark .io-header {
+  color: #93c5fd;
+  border-bottom: 2px solid #1e3a8a;
 }
 
 .markdown-renderer p {

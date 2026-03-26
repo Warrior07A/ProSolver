@@ -4,6 +4,8 @@ const userSchema = new mongoose.Schema({
     name: String,
     email: String,
     password: String,
+} , {
+    timestamps : true
 })
 
 const ProbSchema = new mongoose.Schema({
@@ -12,6 +14,8 @@ const ProbSchema = new mongoose.Schema({
     description: String,
     polygon_link: String,
     tags: [String]
+},{
+    timestamps : true
 })
 
 

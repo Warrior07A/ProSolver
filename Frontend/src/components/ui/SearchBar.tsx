@@ -67,7 +67,7 @@ export function SearchBar({ tags, onTagsChange }: SearchBarProps) {
     <>
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/10 backdrop-blur-sm z-40 transition-opacity" 
+          className="fixed inset-0 bg-black/10 dark:bg-black/40 backdrop-blur-sm z-40 transition-opacity" 
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -75,19 +75,19 @@ export function SearchBar({ tags, onTagsChange }: SearchBarProps) {
       <div ref={containerRef} className="relative w-full z-50 flex flex-col items-center">
         
         <div 
-          className={`relative w-full flex flex-wrap items-center bg-gray-50 border transition-all duration-200 min-h-[44px] px-3 py-1.5 cursor-text
-            ${isOpen ? "border-blue-500 bg-white ring-4 ring-blue-500/10 rounded-t-xl rounded-b-none" : "border-gray-200 rounded-xl hover:border-gray-300 shadow-sm"}
+          className={`relative w-full flex flex-wrap items-center bg-gray-50 dark:bg-gray-800 border transition-all duration-200 min-h-[44px] px-3 py-1.5 cursor-text
+            ${isOpen ? "border-blue-500 bg-white dark:bg-gray-900 ring-4 ring-blue-500/10 dark:ring-blue-500/20 rounded-t-xl rounded-b-none" : "border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 shadow-sm"}
           `}
           onClick={() => setIsOpen(true)}
         >
-          <Search size={16} className={`mr-2 shrink-0 ${isOpen ? "text-blue-500" : "text-gray-400"}`} />
+          <Search size={16} className={`mr-2 shrink-0 ${isOpen ? "text-blue-500" : "text-gray-400 dark:text-gray-500"}`} />
           
           {tags.map((tag) => (
-            <span key={tag} className="flex items-center gap-1 bg-gray-100 text-gray-700 px-2.5 py-1 rounded text-[13px] font-medium mr-2 my-0.5 border border-gray-200 shadow-sm animate-fade-in">
+            <span key={tag} className="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-2.5 py-1 rounded text-[13px] font-medium mr-2 my-0.5 border border-gray-200 dark:border-gray-600 shadow-sm animate-fade-in">
               {tag}
               <button 
                 onClick={(e) => { e.stopPropagation(); removeTag(tag); }}
-                className="hover:text-red-500 transition-colors cursor-pointer text-gray-400 ml-0.5 rounded-full hover:bg-red-50"
+                className="hover:text-red-500 transition-colors cursor-pointer text-gray-400 dark:text-gray-400 ml-0.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30"
               >
                 <X size={13} />
               </button>
@@ -100,19 +100,19 @@ export function SearchBar({ tags, onTagsChange }: SearchBarProps) {
             onKeyDown={handleKeyDown}
             onFocus={() => setIsOpen(true)}
             placeholder={tags.length === 0 ? "Search tags... (Press Enter to lock)" : "Add more tags..."}
-            className="flex-1 bg-transparent border-none outline-none text-[13px] min-w-[150px] py-1 text-gray-900 placeholder:text-gray-400"
+            className="flex-1 bg-transparent border-none outline-none text-[13px] min-w-[150px] py-1 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
           />
         </div>
 
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-t-0 border-blue-500 rounded-b-xl shadow-lg overflow-hidden flex flex-col pt-3 pb-5 px-5 animate-slide-down">
-            <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Suggested Topics</h4>
+          <div className="absolute top-full left-0 right-0 bg-white dark:bg-gray-900 border border-t-0 border-blue-500 dark:border-blue-500/50 rounded-b-xl shadow-lg overflow-hidden flex flex-col pt-3 pb-5 px-5 animate-slide-down">
+            <h4 className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Suggested Topics</h4>
             <div className="flex flex-wrap gap-2">
               {SUGGESTED_TAGS.map(tag => (
                 <button
                   key={tag}
                   onClick={() => addSuggestedTag(tag)}
-                  className="px-3 py-1.5 text-xs font-medium bg-white border border-gray-200 text-gray-600 rounded-md hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all cursor-pointer shadow-sm"
+                  className="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-800 transition-all cursor-pointer shadow-sm"
                 >
                   + {tag}
                 </button>
@@ -124,3 +124,4 @@ export function SearchBar({ tags, onTagsChange }: SearchBarProps) {
     </>
   );
 }
+

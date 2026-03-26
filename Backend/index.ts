@@ -118,14 +118,14 @@ app.post("/create", authm(), async (req: Request, res: Response) => {
     }
     let id = req.id as Types.ObjectId;
     if (!id) {
-        return ferr("ID IS MISSING", 401, res);
+        return ferr("ID IS MISSING", 404, res);
     }
     try {
         let Probfound = await Problems.find({
-            title : probver.data.title
+            title : probver.data.title.toLowerCase()
         })
 
-        console.log(Probfound)
+        console.log(probver.data);
         if (Probfound.length > 0){
             return ferr("Problem Already Exists" , 401, res);
         }
@@ -200,6 +200,19 @@ app.put("/edit", authm(), async (req: Request, res: Response) => {
         return ferr(e.message || "An error occurred", 400, res);
     }
 })
+
+
+app.delete("/delete" , async(req: Request, res : Response) =>{
+    const title = req.body.title;
+    const DelProblem = await Problems.deleteOne({
+        title : title
+    })
+    if (DelProblem){
+        return res.status(200).json({
+            msg : "problem has been deleted successfully"
+        })
+    }
+} )
 
 
 app.listen(3001);
