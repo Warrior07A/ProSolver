@@ -27,7 +27,7 @@ interface SidebarProps {
 export default function Sidebar({ activeTags, onToggleTag }: SidebarProps) {
     return (
         <div className="w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 min-h-[calc(100vh-73px)] sticky top-[73px] overflow-y-auto px-4 py-6 hidden md:block shrink-0 transition-colors duration-300">
-            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-2">DSA Topics</h3>
+            <h3 className="text-lg font-semibold    dark:text-gray-400 uppercase tracking-wider mb-3 px-2">DSA Topics</h3>
             <div className="flex flex-col space-y-1">
                 {topics.map((topic, i) => {
                     const isActive = activeTags.some(t => t.toLowerCase() === topic.toLowerCase());

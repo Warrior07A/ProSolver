@@ -122,7 +122,8 @@ app.post("/create", authm(), async (req: Request, res: Response) => {
     }
     try {
         let Probfound = await Problems.find({
-            title : probver.data.title.toLowerCase()
+            title : probver.data.title,
+            user_id : id
         })
 
         console.log(probver.data);
@@ -202,10 +203,15 @@ app.put("/edit", authm(), async (req: Request, res: Response) => {
 })
 
 
-app.delete("/delete" , async(req: Request, res : Response) =>{
+app.delete("/delete" ,authm(),  async(req: Request, res : Response) =>{
     const title = req.body.title;
+    let id = req.id;
+    if (!id){
+        return ferr("ID NOT FOUND" , 401, res);
+    }
     const DelProblem = await Problems.deleteOne({
-        title : title
+        title : title,
+        user_id : id
     })
     if (DelProblem){
         return res.status(200).json({

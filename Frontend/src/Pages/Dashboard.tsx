@@ -1,20 +1,21 @@
-import CreatePostDialog from "@/components/ui/CreatePostDialog";
-import { ProblemCard } from "@/components/ui/ProblemCard";
+import CreatePostDialog from "../components/ui/CreatePostDialog";
+import { ProblemCard } from "../components/ui/ProblemCard";
 import Sidebar from "../components/ui/Sidebar";
 import { SearchBar } from "../components/ui/SearchBar";
 import { useTheme } from "../context/ThemeContext";
 import axios from "axios";
-import { Plus, Search, ArrowUpDown, Clock, ArrowDownAZ, ArrowUpAZ, History, Moon, Sun } from "lucide-react";
+import { Plus, Search, ArrowUpDown, Clock, ArrowDownAZ, ArrowUpAZ, History, Moon, Sun, LogOut, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import logoImg from "../components/ui/Images/image.png";
+import { useNavigate } from "react-router-dom";
 
 type SortOrder = "latest" | "oldest" | "a-z" | "z-a";
 
 const SORT_OPTIONS: { value: SortOrder; label: string; icon: React.ReactNode }[] = [
-    { value: "latest",  label: "Latest Updated",  icon: <Clock size={15} /> },
-    { value: "oldest",  label: "Oldest First",     icon: <History size={15} /> },
-    { value: "a-z",     label: "Title A → Z",      icon: <ArrowDownAZ size={15} /> },
-    { value: "z-a",     label: "Title Z → A",      icon: <ArrowUpAZ size={15} /> },
+    { value: "latest", label: "Latest Updated", icon: <Clock size={15} /> },
+    { value: "oldest", label: "Oldest First", icon: <History size={15} /> },
+    { value: "a-z", label: "Title A → Z", icon: <ArrowDownAZ size={15} /> },
+    { value: "z-a", label: "Title Z → A", icon: <ArrowUpAZ size={15} /> },
 ];
 
 function applySorting(arr: any[], order: SortOrder): any[] {
@@ -49,17 +50,29 @@ export default function Dashboard() {
     const [sortOpen, setSortOpen] = useState(false);
     const sortRef = useRef<HTMLDivElement>(null);
     const { theme, toggleTheme } = useTheme();
+    const navigate = useNavigate();
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const userMenuRef = useRef<HTMLDivElement>(null);
 
-    // Close sort dropdown when clicking outside
+    // Close dropdowns when clicking outside
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
             if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
                 setSortOpen(false);
             }
+            if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+                setUserMenuOpen(false);
+            }
         };
         document.addEventListener("mousedown", handleClick);
         return () => document.removeEventListener("mousedown", handleClick);
     }, []);
+
+    const handleSignout = () => {
+        localStorage.removeItem("token");
+        navigate("/signin");
+    };
+
 
     useEffect(() => {
         getproblems();
@@ -72,7 +85,7 @@ export default function Dashboard() {
             const lowercaseTags = searchTags.map(t => t.trim().toLowerCase());
             filtered = filtered.filter((p: any) => {
                 const pTags = p.tags?.map((t: string) => t.trim().toLowerCase()) || [];
-                return lowercaseTags.every(st => 
+                return lowercaseTags.every(st =>
                     pTags.some((pt: string) => pt.includes(st) || st.includes(pt))
                 );
             });
@@ -80,7 +93,7 @@ export default function Dashboard() {
 
         if (searchTitle.trim()) {
             const query = searchTitle.toLowerCase();
-            filtered = filtered.filter((p: any) => 
+            filtered = filtered.filter((p: any) =>
                 p.title?.toLowerCase().includes(query)
             );
         }
@@ -104,12 +117,12 @@ export default function Dashboard() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
             <div id="navbar" className="sticky top-0 z-40">
                 <div className="w-full border-b bg-white dark:bg-gray-900 dark:border-gray-800 px-8 py-3 flex items-center justify-between relative shadow-sm h-[73px] transition-colors duration-300">
-                    
+
                     {/* Left - Logo */}
                     <div className="flex items-center gap-3 w-auto md:w-1/4">
-                        <img 
-                            src={logoImg} 
-                            alt="100xSchool" 
+                        <img
+                            src={logoImg}
+                            alt="100xSchool"
                             className="w-10 h-10 rounded-full object-cover border border-black/40 dark:border-gray-700"
                         />
                         <a className="group text-black dark:text-white text-lg tracking hidden sm:block" href="/dashboard" data-discover="true">
@@ -144,8 +157,30 @@ export default function Dashboard() {
                             <Plus size={16} /> Create
                         </button>
 
-                        <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 hidden sm:flex items-center justify-center font-semibold shrink-0 text-gray-800 dark:text-gray-200">
-                            A
+                        <div className="relative" ref={userMenuRef}>
+                            <button
+                                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                                className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center font-bold text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 hover:scale-105 transition-transform cursor-pointer"
+                            >
+                                A
+                            </button>
+
+                            {userMenuOpen && (
+                                <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                                    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 mb-1">
+                                        <p className="text-xs text-gray-400 uppercase font-semibold tracking-wider">Account</p>
+                                    </div>
+                                    <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-none text-left">
+                                        <User size={16} /> Profile
+                                    </button>
+                                    <button
+                                        onClick={handleSignout}
+                                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border-none text-left cursor-pointer"
+                                    >
+                                        <LogOut size={16} /> Sign Out
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -155,8 +190,8 @@ export default function Dashboard() {
             }
 
             <div className="flex items-start">
-                <Sidebar 
-                    activeTags={searchTags} 
+                <Sidebar
+                    activeTags={searchTags}
                     onToggleTag={(tag) => {
                         setSearchTags(prev => {
                             const normalized = tag.toLowerCase();
@@ -165,17 +200,17 @@ export default function Dashboard() {
                             }
                             return [...prev, tag];
                         });
-                    }} 
+                    }}
                 />
                 <div className="flex-1 w-full relative">
                     <div className="max-w-4xl mx-auto mt-10 px-6 pb-12">
-                        
+
                         {/* Search + Sort Row */}
                         <div className="flex items-center gap-3 mb-8">
                             {/* Title Search Bar */}
                             <div className="flex-1 flex items-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
                                 <Search size={18} className="text-gray-400 dark:text-gray-500 mr-3 shrink-0" />
-                                <input 
+                                <input
                                     type="text"
                                     value={searchTitle}
                                     onChange={(e) => setSearchTitle(e.target.value)}
