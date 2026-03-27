@@ -3,7 +3,8 @@ import axios from "axios";
 import MarkdownRenderer from "./MarkdownRenderer/MarkdownRenderer";
 import EditDialog from "./EditDialog";
 import Toast from "./Toast";
-
+import pencil from "./Images/pencil.svg"
+import { PencilIcon } from "lucide-react";
 export interface Card {
     _id?: string;
     title: string;
@@ -129,7 +130,7 @@ export function ProblemCard( props : Card) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 shrink-0">
+        <div className="flex  gap-2 shrink-0">
           <button 
             onClick={handleCopy}
             className={`border rounded-md px-3 py-1 text-sm font-medium cursor-pointer flex items-center gap-1.5 transition-all duration-200
@@ -139,14 +140,17 @@ export function ProblemCard( props : Card) {
               }`}
           >
             {copied ? <CheckIcon /> : <CopyIcon />}
-            {copied ? "Copied!" : "Copy"}
+            {/* {copied ? "Copied!" : "Copy"} */}
           </button>
           
           <button 
             onClick={() => setEditOpen(true)}
             className="border border-gray-200 dark:border-gray-800 rounded-md px-3 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium cursor-pointer"
           >
-            Edit
+            <PencilIcon size={18}/>
+            {/* <svg  xmlns={pencil} className=" fill-blue-500 ">
+              {/* <circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="yellow" /> */}
+            {/* </svg>     */} 
           </button>
 
           <button 
@@ -154,7 +158,6 @@ export function ProblemCard( props : Card) {
             className="border border-red-200 dark:border-red-900/50 rounded-md px-3 py-1 text-sm font-medium cursor-pointer flex items-center gap-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-800 transition-all duration-200"
           >
             <TrashIcon />
-            Delete
           </button>
         </div>
 

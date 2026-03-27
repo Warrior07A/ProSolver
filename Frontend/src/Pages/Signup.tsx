@@ -46,7 +46,6 @@ export default function Signup() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col justify-center items-center p-4 transition-colors duration-300">
             {/* Logo and Branding */}
             <div className="flex items-center gap-3 mb-8">
-                <img src={logoImg} alt="ProSolver Logo" className="w-12 h-12 rounded-full border border-gray-200 dark:border-gray-800 shadow-sm" />
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
                     100<span className="text-blue-600 dark:text-blue-400">x</span>School
                 </h1>

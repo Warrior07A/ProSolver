@@ -120,11 +120,7 @@ export default function Dashboard() {
 
                     {/* Left - Logo */}
                     <div className="flex items-center gap-3 w-auto md:w-1/4">
-                        <img
-                            src={logoImg}
-                            alt="100xSchool"
-                            className="w-10 h-10 rounded-full object-cover border border-black/40 dark:border-gray-700"
-                        />
+                       
                         <a className="group text-black dark:text-white text-lg tracking hidden sm:block" href="/dashboard" data-discover="true">
                             100<span className="text-primary"><label className="text-blue-600 dark:text-blue-400">x</label></span>School
                         </a>
