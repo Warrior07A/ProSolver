@@ -1,9 +1,16 @@
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Tag, ChevronDown, Search, Plus, Link as LinkIconLucide } from 'lucide-react';
 
 const PRESET_TAGS = [
-    "String", "Array", "Dynamic Programming",
-    "Graph", "Binary Search", "Tree", "Greedy",
+    "Arrays", "String", "Hash Table", "Linked List", "Two Pointers",
+    "Sliding Window", "Stack", "Queue", "Binary Search", "Tree",
+    "Binary Tree", "BST", "Tries", "Heap", "Priority Queue",
+    "Backtracking", "Graphs", "BFS", "DFS", "Dijkstra",
+    "Bellman-Ford", "Floyd-Warshall", "Minimum Spanning Tree",
+    "Topological Sort", "Dynamic Programming", "Bit Manipulation",
+    "Greedy", "Math", "Number Theory", "Geometry", "Recursion",
+    "Sorting", "Segment Tree", "Fenwick Tree", "Disjoint Set Union (DSU)"
 ];
 
 interface EditProps {
@@ -33,6 +40,19 @@ function EditDialog({ open, onClose, onSuccess, problem }: EditProps) {
     const [descError, setDescError] = useState(false);
     const [polyError, setPolyError] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [tagSearch, setTagSearch] = useState("");
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setDropdownOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
@@ -86,7 +106,7 @@ function EditDialog({ open, onClose, onSuccess, problem }: EditProps) {
             activeTags.forEach((ele: any) => {
                 a.push(ele);
             });
-            
+
             let Probres = await axios.put("http://localhost:3001/edit", {
                 problem_id: problem._id,
                 title: title,
@@ -165,8 +185,8 @@ function EditDialog({ open, onClose, onSuccess, problem }: EditProps) {
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     className={`w-full px-3 py-2.5 text-sm rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-colors
-                                        ${titleError 
-                                            ? "border border-red-400 dark:border-red-500/50 focus:border-red-500" 
+                                        ${titleError
+                                            ? "border border-red-400 dark:border-red-500/50 focus:border-red-500"
                                             : "border border-gray-200 dark:border-gray-700 focus:border-gray-400 dark:focus:border-gray-500"
                                         }
                                     `}
@@ -184,8 +204,8 @@ function EditDialog({ open, onClose, onSuccess, problem }: EditProps) {
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     className={`w-full px-3 py-2.5 text-sm rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none resize-y leading-relaxed transition-colors
-                                        ${descError 
-                                            ? "border border-red-400 dark:border-red-500/50 focus:border-red-500" 
+                                        ${descError
+                                            ? "border border-red-400 dark:border-red-500/50 focus:border-red-500"
                                             : "border border-gray-200 dark:border-gray-700 focus:border-gray-400 dark:focus:border-gray-500"
                                         }
                                     `}
@@ -198,13 +218,13 @@ function EditDialog({ open, onClose, onSuccess, problem }: EditProps) {
                                     Polygon Link
                                 </label>
                                 <div className={`flex items-center border rounded-lg bg-gray-50 dark:bg-gray-800 overflow-hidden transition-colors
-                                    ${polyError 
-                                        ? "border-red-400 dark:border-red-500/50 focus-within:border-red-500" 
+                                    ${polyError
+                                        ? "border-red-400 dark:border-red-500/50 focus-within:border-red-500"
                                         : "border-gray-200 dark:border-gray-700 focus-within:border-gray-400 dark:focus-within:border-gray-500"
                                     }
                                 `}>
                                     <span className="px-2.5 text-gray-400 dark:text-gray-500 border-r border-gray-200 dark:border-gray-700 flex items-center h-10">
-                                        <LinkIcon />
+                                        <LinkIconLucide size={16} />
                                     </span>
                                     <input
                                         type="url"
@@ -222,6 +242,7 @@ function EditDialog({ open, onClose, onSuccess, problem }: EditProps) {
                                     Tags
                                 </label>
 
+                                {/* Selected tag pills */}
                                 {activeTags.size > 0 && (
                                     <div className="flex flex-wrap gap-1.5 mb-3">
                                         {[...activeTags].map((tag) => (
@@ -241,43 +262,98 @@ function EditDialog({ open, onClose, onSuccess, problem }: EditProps) {
                                     </div>
                                 )}
 
-                                <div className="flex flex-wrap gap-1.5 mb-3">
-                                    {allPresets.map((tag) => (
-                                        <button
-                                            key={tag}
-                                            onClick={() => toggleTag(tag)}
-                                            className={`px-3 py-1 text-xs rounded-full border transition-all cursor-pointer font-medium
-                                                ${activeTags.has(tag) 
-                                                    ? "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800" 
-                                                    : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200"
-                                                }
-                                            `}
-                                        >
-                                            {tag}
-                                        </button>
-                                    ))}
+                                {/* Multi-select Dropdown */}
+                                <div className="relative mb-4" ref={dropdownRef}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDropdownOpen(!dropdownOpen)}
+                                        className="w-full flex items-center justify-between px-3.5 py-2.5 text-sm rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all cursor-pointer"
+                                    >
+                                        <span className="flex items-center gap-2">
+                                            <Tag size={14} />
+                                            {activeTags.size > 0 ? `${activeTags.size} selected` : "Select DSA Topics..."}
+                                        </span>
+                                        <ChevronDown size={14} className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
+                                    </button>
+
+                                    {dropdownOpen && (
+                                        <div className="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                                            <div className="p-2 border-b border-gray-100 dark:border-gray-800">
+                                                <div className="flex items-center px-2 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                                    <Search size={14} className="text-gray-400 mr-2" />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Search topics..."
+                                                        value={tagSearch}
+                                                        onChange={(e) => setTagSearch(e.target.value)}
+                                                        className="bg-transparent border-none outline-none text-xs text-gray-900 dark:text-white placeholder:text-gray-500 w-full"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="max-h-[220px] overflow-y-auto p-1.5">
+                                                {PRESET_TAGS.filter(tag => tag.toLowerCase().includes(tagSearch.toLowerCase())).map((tag) => (
+                                                    <button
+                                                        key={tag}
+                                                        type="button"
+                                                        onClick={() => toggleTag(tag)}
+                                                        className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer border-none mb-0.5
+                                                            ${activeTags.has(tag)
+                                                                ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-semibold"
+                                                                : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                                                            }`}
+                                                    >
+                                                        {tag}
+                                                        {activeTags.has(tag) && (
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                                                <path d="M20 6L9 17l-5-5" />
+                                                            </svg>
+                                                        )}
+                                                    </button>
+                                                ))}
+                                                {PRESET_TAGS.filter(tag => tag.toLowerCase().includes(tagSearch.toLowerCase())).length === 0 && (
+                                                    <p className="text-center py-4 text-[11px] text-gray-400 italic">No matching topics found.</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
-                                <div className="flex gap-2 items-center">
-                                    <div className="flex items-center flex-1 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 overflow-hidden focus-within:border-gray-400 dark:focus-within:border-gray-500 transition-colors">
-                                        <span className="ml-2.5 text-gray-400 dark:text-gray-500 shrink-0">
-                                            <PlusIcon size={13} />
-                                        </span>
-                                        <input
-                                            type="text"
-                                            placeholder="Create new tag..."
-                                            value={newTag}
-                                            onChange={(e) => setNewTag(e.target.value)}
-                                            onKeyDown={(e) => e.key === "Enter" && addCustomTag()}
-                                            className="flex-1 px-2.5 py-2 text-[13px] bg-transparent text-gray-900 dark:text-gray-200 outline-none border-none placeholder:text-gray-400 dark:placeholder:text-gray-600"
-                                        />
+                                {/* Create new tag */}
+                                <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                                    <label className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase mb-2 ml-1">
+                                        Custom Tag
+                                    </label>
+                                    <div className="flex gap-2 items-center">
+                                        <div className="flex items-center flex-1 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 overflow-hidden focus-within:border-gray-400 dark:focus-within:border-gray-500 transition-colors">
+                                            <span className="ml-2.5 text-gray-400 dark:text-gray-500 shrink-0">
+                                                <Plus size={13} />
+                                            </span>
+                                            <input
+                                                type="text"
+                                                placeholder="Enter new tag name..."
+                                                value={newTag}
+                                                onChange={(e) => setNewTag(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        e.preventDefault();
+                                                        addCustomTag();
+                                                    }
+                                                }}
+                                                className="flex-1 px-2.5 py-2 text-[13px] bg-transparent text-gray-900 dark:text-gray-200 outline-none border-none placeholder:text-gray-400 dark:placeholder:text-gray-600"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={addCustomTag}
+                                            className="px-3.5 py-2 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all cursor-pointer whitespace-nowrap"
+                                        >
+                                            Add
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={addCustomTag}
-                                        className="px-3.5 py-2 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all cursor-pointer whitespace-nowrap"
-                                    >
-                                        Add tag
-                                    </button>
+                                    <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-1.5 ml-1">
+                                        Can't find a topic? Type above and click "Add" to create a custom tag.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -303,22 +379,9 @@ function EditDialog({ open, onClose, onSuccess, problem }: EditProps) {
     );
 }
 
-const PlusIcon = ({ size = 15 }) => (
-    <svg width={size} height={size} viewBox="0 0 14 14" fill="none">
-        <path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-);
-
 const CloseIcon = () => (
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
         <path d="M1 1l9 9M10 1L1 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-);
-
-const LinkIcon = () => (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M8.5 2.5l3 3-7 7-3-3 7-7z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M5.5 5.5l3 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
     </svg>
 );
 
