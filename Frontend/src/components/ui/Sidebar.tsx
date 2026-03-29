@@ -26,7 +26,7 @@ interface SidebarProps {
 
 export default function Sidebar({ activeTags, onToggleTag }: SidebarProps) {
     return (
-        <div className="w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 min-h-[calc(100vh-73px)] sticky top-[73px] overflow-y-auto px-4 py-6 hidden md:block shrink-0 transition-colors duration-300">
+        <div className="w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 h-[calc(100vh-73px)] fixed top-[73px] overflow-y-auto px-4 py-6 hidden md:block shrink-0 transition-colors duration-300">
             <h3 className="text-lg font-semibold dark:text-gray-400 uppercase tracking-wider mb-3 px-2">Topics</h3>
             <div className="flex flex-col space-y-1">
                 {topics.map((topic, i) => {
@@ -36,8 +36,8 @@ export default function Sidebar({ activeTags, onToggleTag }: SidebarProps) {
                             key={i}
                             onClick={() => onToggleTag(topic)}
                             className={`flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-all cursor-pointer ${isActive
-                                    ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold"
-                                    : "font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                                ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold"
+                                : "font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                                 }`}
                         >
                             <span>{topic}</span>

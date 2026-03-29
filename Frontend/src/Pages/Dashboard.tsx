@@ -120,7 +120,7 @@ export default function Dashboard() {
 
                     {/* Left - Logo */}
                     <div className="flex items-center gap-3 w-auto md:w-1/4">
-                       
+
                         <a className="group text-black dark:text-white text-lg tracking hidden sm:block" href="/dashboard" data-discover="true">
                             100<span className="text-primary"><label className="text-blue-600 dark:text-blue-400">x</label></span>School
                         </a>
@@ -198,7 +198,7 @@ export default function Dashboard() {
                         });
                     }}
                 />
-                <div className="flex-1 w-full relative">
+                <div className="flex-1 w-full relative md:ml-64">
                     <div className="max-w-4xl mx-auto mt-10 px-6 pb-12">
 
                         {/* Search + Sort Row */}
